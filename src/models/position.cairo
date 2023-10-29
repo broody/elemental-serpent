@@ -1,37 +1,6 @@
 use traits::TryInto;
 use traits::Into;
 use option::OptionTrait;
-use starknet::ContractAddress;
-
-#[derive(Model, Copy, Drop, Serde)]
-struct Owner {
-    #[key]
-    game_id: u32,
-    #[key]
-    player_id: ContractAddress,
-    head_id: u32,
-}
-
-#[derive(Model, Copy, Drop, Serde)]
-struct Head {
-    #[key]
-    game_id: u32,
-    #[key]
-    node_id: u32,
-    owner_id: ContractAddress,
-    prev: u32,
-    total_links: u8
-}
-
-#[derive(Model, Copy, Drop, Serde)]
-struct Link {
-    #[key]
-    game_id: u32,
-    #[key]
-    node_id: u32,
-    next: u32,
-    prev: u32
-}
 
 #[derive(Model, Copy, Drop, Serde)]
 struct Position {
