@@ -13,12 +13,12 @@ mod actions {
     use array::ArrayTrait;
 
     use starknet::{ContractAddress, get_caller_address};
-    use elemental_serpent::models::config::{ConfigTrait, Config};
-    use elemental_serpent::models::position::{Position, PositionTrait};
-    use elemental_serpent::models::link::Link;
-    use elemental_serpent::models::owner::Owner;
-    use elemental_serpent::models::head::Head;
-    use elemental_serpent::models::tile::Tile;
+    use godai::models::config::{ConfigTrait, Config};
+    use godai::models::position::{Position, PositionTrait};
+    use godai::models::link::Link;
+    use godai::models::owner::Owner;
+    use godai::models::head::Head;
+    use godai::models::tile::Tile;
     use super::IActions;
 
     #[external(v0)]

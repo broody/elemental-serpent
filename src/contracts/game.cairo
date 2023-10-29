@@ -24,12 +24,12 @@ mod game {
     use starknet::Zeroable;
     use starknet::{ContractAddress, get_caller_address};
 
-    use elemental_serpent::models::config::Config;
-    use elemental_serpent::models::tile::Tile;
-    use elemental_serpent::models::position::{Position, PositionTrait};
-    use elemental_serpent::models::link::Link;
-    use elemental_serpent::models::owner::Owner;
-    use elemental_serpent::models::head::{Head, Element};
+    use godai::models::config::Config;
+    use godai::models::tile::Tile;
+    use godai::models::position::{Position, PositionTrait};
+    use godai::models::link::Link;
+    use godai::models::owner::Owner;
+    use godai::models::head::{Head, Element};
     use super::IGame;
 
     #[external(v0)]

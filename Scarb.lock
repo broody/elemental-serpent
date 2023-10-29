@@ -14,7 +14,7 @@ name = "dojo_plugin"
 version = "0.3.2"
 
 [[package]]
-name = "elemental_serpent"
+name = "godai"
 version = "0.1.0"
 dependencies = [
  "dojo",
