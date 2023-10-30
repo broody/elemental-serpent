@@ -1,4 +1,4 @@
-<center><img src='.github/logo.webp' width="300"/></center>
+<img src='.github/logo.webp' width="300"/>
 
 # Godai - Elemental Serpent
 

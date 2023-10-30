@@ -6,5 +6,5 @@ struct Owner {
     game_id: u32,
     #[key]
     player_id: ContractAddress,
-    head_id: u32,
+    block_id: u32,
 }

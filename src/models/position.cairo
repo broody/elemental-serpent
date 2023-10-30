@@ -7,7 +7,7 @@ struct Position {
     #[key]
     game_id: u32,
     #[key]
-    node_id: u32,
+    block_id: u32,
     x: u32,
     y: u32
 }

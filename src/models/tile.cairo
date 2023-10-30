@@ -6,5 +6,5 @@ struct Tile {
     x: u32,
     #[key]
     y: u32,
-    node_id: u32,
+    block_id: u32,
 }

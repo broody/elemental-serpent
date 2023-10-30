@@ -1,6 +1,6 @@
 mod config;
 mod head;
 mod owner;
-mod link;
+mod block;
 mod tile;
 mod position;

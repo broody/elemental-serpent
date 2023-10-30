@@ -1,9 +1,9 @@
 #[derive(Model, Copy, Drop, Serde)]
-struct Link {
+struct Block {
     #[key]
     game_id: u32,
     #[key]
-    node_id: u32,
+    block_id: u32,
     next: u32,
     prev: u32
 }

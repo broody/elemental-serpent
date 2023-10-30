@@ -28,9 +28,9 @@ struct Head {
     #[key]
     game_id: u32,
     #[key]
-    node_id: u32,
+    block_id: u32,
     owner_id: ContractAddress,
     element: Element,
     prev: u32,
-    total_links: u8
+    total_blocks: u8
 }
