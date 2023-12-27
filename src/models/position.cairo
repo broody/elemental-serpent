@@ -1,6 +1,6 @@
-use traits::TryInto;
-use traits::Into;
-use option::OptionTrait;
+use core::traits::TryInto;
+use core::traits::Into;
+use core::option::OptionTrait;
 
 #[derive(Model, Copy, Drop, Serde)]
 struct Position {

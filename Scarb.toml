@@ -1,7 +1,8 @@
 [package]
 name = "godai"
 version = "0.1.0"
-cairo-version = "2.3.0"
+cairo-version = "2.4.0"
+edition = "2023_10"
 
 [cairo]
 sierra-replace-ids = true
@@ -10,9 +11,6 @@ sierra-replace-ids = true
 dojo = { git = "https://github.com/dojoengine/dojo" }
 
 [[target.dojo]]
-
-[tool.dojo]
-initializer_class_hash = "0xbeef"
 
 [tool.dojo.env]
 rpc_url = "http://localhost:5050/"

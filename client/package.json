@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@dojoengine/core": "^0.1.35",
+    "@dojoengine/create-burner": "^0.1.35",
+    "@dojoengine/torii-client": "^0.1.35",
     "@react-three/drei": "^9.80.9",
     "@react-three/fiber": "^8.13.7",
     "@testing-library/jest-dom": "^5.17.0",

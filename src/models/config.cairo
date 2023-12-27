@@ -1,5 +1,5 @@
-use box::BoxTrait;
-use traits::Into;
+use core::box::BoxTrait;
+use core::traits::Into;
 use starknet::ContractAddress;
 
 #[derive(Model, Copy, Drop, Serde)]
