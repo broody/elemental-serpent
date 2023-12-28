@@ -7,11 +7,13 @@ mod systems {
 
 mod models {
     mod config;
-    mod head;
     mod owner;
-    mod block;
-    mod tile;
-    mod position;
+    mod cell;
+    mod block {
+        mod head;
+        mod link;
+        mod position;
+    }
 }
 
 #[cfg(test)]

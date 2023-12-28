@@ -9,6 +9,7 @@ struct Config {
     creator: ContractAddress,
     height: u32,
     width: u32,
+    depth: u32,
     num_blocks: u32,
     max_blocks: u32,
     num_players: u8,

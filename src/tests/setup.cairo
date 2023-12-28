@@ -14,12 +14,11 @@ mod setup {
     // Internal imports
 
     use godai::models::config::{config, Config};
-    use godai::models::tile::{tile, Tile};
-    use godai::models::position::{position, Position, PositionTrait};
-    use godai::models::block::{block, Block};
     use godai::models::owner::{owner, Owner};
-    use godai::models::head::{head, Head, Element};
+    use godai::models::cell::{cell, Cell};
+    use godai::models::block::{head::{head, Head}, link::{link, Link}, position::{Position, PositionTrait}};
     use godai::systems::game::{game, IGameDispatcher, IGameDispatcherTrait};
+    use godai::systems::actions::{actions, IActionsDispatcher, IActionsDispatcherTrait};
 
     fn PLAYER() -> ContractAddress {
         contract_address_const::<'PLAYER'>()
@@ -27,16 +26,16 @@ mod setup {
 
     #[derive(Copy, Clone, Drop)]
     struct SystemDispatchers {
-        game: IGameDispatcher
+        game: IGameDispatcher,
+        actions: IActionsDispatcher,
     }
 
     fn spawn_world() -> (IWorldDispatcher, SystemDispatchers) {
         let mut models = array![
             config::TEST_CLASS_HASH,
-            tile::TEST_CLASS_HASH,
+            cell::TEST_CLASS_HASH,
             head::TEST_CLASS_HASH,
-            position::TEST_CLASS_HASH,
-            block::TEST_CLASS_HASH,
+            link::TEST_CLASS_HASH,
             owner::TEST_CLASS_HASH,
         ];
         let world = spawn_test_world(models);
@@ -44,7 +43,11 @@ mod setup {
             game: IGameDispatcher {
                 contract_address: world
                     .deploy_contract('game', game::TEST_CLASS_HASH.try_into().unwrap())
-            }
+            },
+            actions: IActionsDispatcher {
+                contract_address: world
+                    .deploy_contract('actions', actions::TEST_CLASS_HASH.try_into().unwrap())
+            },
         };
 
         (world, systems)
@@ -53,6 +56,7 @@ mod setup {
     fn create_game() -> (IWorldDispatcher, SystemDispatchers, u32) {
         let HEIGHT = 10_u32;
         let WIDTH = 10_u32;
+        let DEPTH = 10_u32;
         let MAX_BLOCKS = 10_u32;
         let MAX_PLAYERS = 10_u8;
         let START_TIME = 0_u64;
@@ -62,7 +66,7 @@ mod setup {
         let (world, systems) = spawn_world();
         let game_id = systems
             .game
-            .create(HEIGHT, WIDTH, MAX_BLOCKS, MAX_PLAYERS, START_TIME, MAX_TIME);
+            .create(HEIGHT, WIDTH, DEPTH, MAX_BLOCKS, MAX_PLAYERS, START_TIME, MAX_TIME);
 
         let config = get!(world, game_id, Config);
         assert(config.creator == PLAYER(), 'Creator is not caller');
@@ -73,14 +77,14 @@ mod setup {
         (world, systems, game_id)
     }
 
-    fn spawn_empty_block(world: IWorldDispatcher, game_id: u32, x: u32, y: u32,) -> u32 {
-        let tile = get!(world, (game_id, x, y), Tile);
-        assert(tile.block_id == Zeroable::zero(), 'Tile is not empty');
+    fn spawn_empty_link(world: IWorldDispatcher, game_id: u32, x: u32, y: u32, z: u32) -> u32 {
+        let cell = get!(world, (game_id, x, y, z), Cell);
+        assert(cell.block_id == Zeroable::zero(), 'Cell is not empty');
 
         let block_id = world.uuid();
         set!(
             world,
-            (Block { game_id, block_id, next: 0, prev: 0, }, Tile { game_id, block_id, x, y })
+            (Link { game_id, block_id, next: 0, prev: 0, position: Position {x, y, z} }, Cell { game_id, block_id, x, y, z })
         );
 
         block_id

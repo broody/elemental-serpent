@@ -2,14 +2,11 @@ use core::traits::TryInto;
 use core::traits::Into;
 use core::option::OptionTrait;
 
-#[derive(Model, Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 struct Position {
-    #[key]
-    game_id: u32,
-    #[key]
-    block_id: u32,
     x: u32,
-    y: u32
+    y: u32,
+    z: u32,
 }
 
 trait PositionTrait {

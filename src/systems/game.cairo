@@ -6,12 +6,13 @@ trait IGame<TContractState> {
         self: @TContractState,
         height: u32,
         width: u32,
+        depth: u32,
         max_blocks: u32,
         max_players: u8,
         start_time: u64,
         max_time: u64,
     ) -> u32;
-    fn join(self: @TContractState, game_id: u32, spawn_x: u32, spawn_y: u32);
+    fn join(self: @TContractState, game_id: u32, x: u32, y: u32, z: u32);
 }
 
 
@@ -25,11 +26,9 @@ mod game {
     use starknet::{ContractAddress, get_caller_address};
 
     use godai::models::config::Config;
-    use godai::models::tile::Tile;
-    use godai::models::position::{Position, PositionTrait};
-    use godai::models::block::Block;
+    use godai::models::cell::Cell;
     use godai::models::owner::Owner;
-    use godai::models::head::{Head, Element};
+    use godai::models::block::{head::{Head, Element}, link::Link, position::{Position, PositionTrait}};
     use super::IGame;
 
     #[external(v0)]
@@ -37,6 +36,7 @@ mod game {
         self: @ContractState,
         height: u32,
         width: u32,
+        depth: u32,
         max_blocks: u32,
         max_players: u8,
         start_time: u64,
@@ -53,6 +53,7 @@ mod game {
                 creator: player_id,
                 height,
                 width,
+                depth,
                 num_blocks: 0,
                 max_blocks,
                 num_players: 0,
@@ -95,19 +96,20 @@ mod game {
     }
 
     #[external(v0)]
-    fn join(self: @ContractState, game_id: u32, spawn_x: u32, spawn_y: u32) {
+    fn join(self: @ContractState, game_id: u32, x: u32, y: u32, z: u32) {
         let world = self.world_dispatcher.read();
         let mut config = get!(world, game_id, Config);
         assert(config.num_players < config.max_players, 'Game is full');
-        assert(config.height > spawn_y, 'Spawn Y is out of bounds');
-        assert(config.width > spawn_x, 'Spawn X is out of bounds');
+        assert(config.height > x, 'Spawn Y is out of bounds');
+        assert(config.width > y, 'Spawn X is out of bounds');
+        assert(config.depth > z, 'Spawn Z is out of bounds');
 
         let player_id = get_caller_address();
         let owner = get!(world, (game_id, player_id), Owner);
         assert(owner.block_id == Zeroable::zero(), 'Player is already in a game');
 
-        let mut tile = get!(world, (game_id, spawn_x, spawn_y), Tile);
-        assert(tile.block_id == Zeroable::zero(), 'Cannot spawn on filled tile');
+        let mut cell = get!(world, (game_id, x, y, z), Cell);
+        assert(cell.block_id == Zeroable::zero(), 'Cannot spawn in occupied cell');
 
         let block_id = world.uuid();
 
@@ -120,20 +122,17 @@ mod game {
                     block_id,
                     owner_id: player_id,
                     prev: 0,
-                    total_blocks: 0,
-                    element: Element::None
+                    total_links: 0,
+                    element: Element::None,
+                    position: Position { x, y, z },
                 },
-                Position { game_id, block_id, x: spawn_x, y: spawn_y }
+                Cell { game_id, block_id, x, y, z}
             )
         );
 
         config.num_players += 1;
-        tile.game_id = game_id;
-        tile.block_id = block_id;
-        tile.x = spawn_x;
-        tile.y = spawn_y;
 
-        // update config and tile
-        set!(world, (config, tile));
+        // update config 
+        set!(world, (config));
     }
 }
