@@ -10,7 +10,7 @@ trait IGame<TContractState> {
         max_players: u8,
         start_time: u64,
         max_time: u64,
-    );
+    ) -> u32;
     fn join(self: @TContractState, game_id: u32, spawn_x: u32, spawn_y: u32);
 }
 
@@ -111,7 +111,6 @@ mod game {
 
         let block_id = world.uuid();
 
-        // spawn node
         set!(
             world,
             (
@@ -129,79 +128,12 @@ mod game {
         );
 
         config.num_players += 1;
+        tile.game_id = game_id;
         tile.block_id = block_id;
+        tile.x = spawn_x;
+        tile.y = spawn_y;
 
         // update config and tile
         set!(world, (config, tile));
-
-        ()
-    }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use core::debug::PrintTrait;
-    use starknet::{ContractAddress, contract_address_const};
-    use starknet::class_hash::Felt252TryIntoClassHash;
-    use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-    use dojo::test_utils::{spawn_test_world, deploy_contract};
-
-    //use godai::tests::setup;
-    use godai::models::config::{config, Config};
-    use godai::models::tile::{tile, Tile};
-    use godai::models::position::{position, Position, PositionTrait};
-    use godai::models::block::{block, Block};
-    use godai::models::owner::{owner, Owner};
-    use godai::models::head::{head, Head, Element};
-    use super::{game, IGameDispatcher, IGameDispatcherTrait};
-
-    #[test]
-    #[available_gas(60000000)]
-    fn create_and_join() {
-        let HEIGHT = 10_u32;
-        let WIDTH = 10_u32;
-        let MAX_BLOCKS = 10_u32;
-        let MAX_PLAYERS = 10_u8;
-        let START_TIME = 0_u64;
-        let MAX_TIME = 0_u64;
-        let JOIN_X = 6_u32;
-        let JOIN_Y = 9_u32;
-
-        let mut models = array![
-            config::TEST_CLASS_HASH,
-            tile::TEST_CLASS_HASH,
-            head::TEST_CLASS_HASH,
-            position::TEST_CLASS_HASH,
-            block::TEST_CLASS_HASH,
-            owner::TEST_CLASS_HASH
-        ];
-        let world = spawn_test_world(models);  
-
-        // let player = contract_address_const::<0x123>();
-        // starknet::testing::set_contract_address(player);
-        // let (world, game_dispatcher) = setup();
-        // let game_id = 0_u32;
-
-        // game_dispatcher.create(HEIGHT, WIDTH, MAX_BLOCKS, MAX_PLAYERS, START_TIME, MAX_TIME);
-        // game_dispatcher.join(game_id, JOIN_X, JOIN_Y);
-
-        // let config = get!(world, game_id, Config);
-        // assert(config.creator == player, 'Creator is not caller');
-        // assert(config.width == WIDTH, 'Width is not 10');
-        // assert(config.height == HEIGHT, 'Height is not 10');
-        // assert(config.max_blocks == MAX_BLOCKS, 'Max blocks is not 10');
-
-        // let owner = get!(world, (game_id, player), Owner);
-        // assert(owner.player_id == player, 'Player id is not caller');
-
-        // let block_id = owner.block_id;
-        // let (head, position) = get!(world, (game_id, block_id), (Head, Position));
-        // assert(head.owner_id == player, 'Head owner is not caller');
-        // assert(position.x == JOIN_X, 'Position X is not 6');
-        // assert(position.y == JOIN_Y, 'Position Y is not 9');
-
-        // let tile = get!(world, (game_id, JOIN_X, JOIN_Y), Tile);
-        // assert(tile.block_id == block_id, 'Tile block id is not block id');
     }
 }

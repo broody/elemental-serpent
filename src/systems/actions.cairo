@@ -11,8 +11,8 @@ enum Direction {
 #[starknet::interface]
 trait IActions<TContractState> {
     fn step(self: @TContractState, game_id: u32, direction: Direction);
-    //fn move(self: @TContractState, game_id: u32, target_x: u32, target_y: u32);
-    //fn consume(self: @TContractState, game_id: u32, target_x: u32, target_y: u32);
+//fn move(self: @TContractState, game_id: u32, target_x: u32, target_y: u32);
+//fn consume(self: @TContractState, game_id: u32, target_x: u32, target_y: u32);
 }
 
 #[dojo::contract]
@@ -32,46 +32,40 @@ mod actions {
     use super::Direction;
 
     #[external(v0)]
-    fn step(self: @ContractState, game_id: u32, direction: Direction) {
+    fn move(self: @ContractState, game_id: u32, target_x: u32, target_y: u32) {
+        let world = self.world_dispatcher.read();
+        let player_id = get_caller_address();
+
+        let config = get!(world, game_id, (Config));
+        config.check();
+
+        let mut target_tile = get!(world, (game_id, target_x, target_y), (Tile));
+        assert(target_tile.block_id == 0, 'Target position is not empty');
+
+        let owner = get!(world, (game_id, player_id), (Owner));
+        let (mut head_position, mut head) = get!(
+            world, (game_id, owner.block_id), (Position, Head)
+        );
+        let mut head_tile = get!(world, (game_id, head_position.x, head_position.y), (Tile));
+        assert(head_position.is_adjacent(target_x, target_y), 'Target is not adjacent to head');
+    // get the tail and set its position to the head
+    // let tail_link = tail(ctx, game_id, head.prev);
+    // let mut tail_position = get !(world, (game_id, tail_link.block_id), (Position));
+    // let mut tail_tile = get !(world, (game_id, tail_position.x, tail_position.y), (Tile));
+    // tail_position.x = head_position.x;
+    // tail_position.y = head_position.y;
+    // tail_tile.block_id = 0;
+
+    // // get new tail and zero out prev pointer
+    // let mut new_tail = get !(world, (game_id, tail_link.next), (Link));
+    // new_tail.prev = 0;
+
+    // // set head position to target
+    // head_position.x = target_x;
+    // head_position.y = target_y;
+    // target_tile.block_id = head.block_id;
 
     }
-
-
-    // #[external(v0)]
-    // fn move(self: @ContractState, game_id: u32, target_x: u32, target_y: u32) {
-    //     let world = self.world_dispatcher.read();
-    //     let player_id = get_caller_address();
-
-    //     let config = get!(world, game_id, (Config));
-    //     config.check();
-
-    //     let mut target_tile = get!(world, (game_id, target_x, target_y), (Tile));
-    //     assert(target_tile.block_id == 0, 'Target position is not empty');
-
-    //     let owner = get!(world, (game_id, player_id), (Owner));
-    //     let (mut head_position, mut head) = get!(
-    //         world, (game_id, owner.block_id), (Position, Head)
-    //     );
-    //     let mut head_tile = get!(world, (game_id, head_position.x, head_position.y), (Tile));
-    //     assert(head_position.is_adjacent(target_x, target_y), 'Target is not adjacent to head');
-    // // get the tail and set its position to the head
-    // // let tail_link = tail(ctx, game_id, head.prev);
-    // // let mut tail_position = get !(world, (game_id, tail_link.block_id), (Position));
-    // // let mut tail_tile = get !(world, (game_id, tail_position.x, tail_position.y), (Tile));
-    // // tail_position.x = head_position.x;
-    // // tail_position.y = head_position.y;
-    // // tail_tile.block_id = 0;
-
-    // // // get new tail and zero out prev pointer
-    // // let mut new_tail = get !(world, (game_id, tail_link.next), (Link));
-    // // new_tail.prev = 0;
-
-    // // // set head position to target
-    // // head_position.x = target_x;
-    // // head_position.y = target_y;
-    // // target_tile.block_id = head.block_id;
-
-    // }
 
     // #[external(v0)]
     // fn consume(self: @ContractState, game_id: u32, target_x: u32, target_y: u32) {
@@ -146,6 +140,4 @@ mod actions {
 
 
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}
