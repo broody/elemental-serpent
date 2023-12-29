@@ -2,6 +2,8 @@ use core::traits::TryInto;
 use core::traits::Into;
 use core::option::OptionTrait;
 
+use godai::utils::math::{MathTrait};
+
 #[derive(Copy, Drop, Serde, Introspect)]
 struct Position {
     x: u32,
@@ -12,7 +14,7 @@ struct Position {
 trait PositionTrait {
     fn rnd_coord(seed: felt252, width: u32, height: u32) -> (u32, u32);
     fn is_equal(self: Position, b: Position) -> bool;
-    fn is_adjacent(self: Position, x: u32, y: u32) -> bool;
+    fn is_adjacent(self: Position, x: u32, y: u32, z: u32) -> bool;
 }
 
 impl PositionImpl of PositionTrait {
@@ -32,28 +34,8 @@ impl PositionImpl of PositionTrait {
         self.x == b.x && self.y == b.y
     }
 
-    fn is_adjacent(self: Position, x: u32, y: u32) -> bool {
-        if x == self.x {
-            if y - 1 == self.y {
-                return true;
-            }
-
-            if y + 1 == self.y {
-                return true;
-            }
-        }
-
-        if y == self.y {
-            if x - 1 == self.x {
-                return true;
-            }
-
-            if x + 1 == self.x {
-                return true;
-            }
-        }
-
-        return false;
+    fn is_adjacent(self: Position, x: u32, y: u32, z: u32) -> bool {
+        self.x.abs_sub(x) <= 1 && self.y.abs_sub(y) <= 1 && self.z.abs_sub(z) <= 1
     }
 }
 

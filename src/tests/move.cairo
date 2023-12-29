@@ -6,9 +6,8 @@ mod move {
     use dojo::test_utils::{spawn_test_world, deploy_contract};
 
     use godai::models::config::{config, Config};
-    use godai::models::owner::Owner;
     use godai::models::cell::Cell;
-    use godai::models::block::{head::Head, link::Link, position::{Position, PositionTrait}};
+    use godai::models::block::{owner::Owner, link::Link, position::{Position, PositionTrait}};
 
     use godai::systems::game::{IGameDispatcher, IGameDispatcherTrait};
     use godai::systems::actions::{IActionsDispatcher, IActionsDispatcherTrait};
@@ -22,5 +21,8 @@ mod move {
         let block_id = spawn_empty_link(world, game_id, 1, 2, 1);
 
         systems.actions.move(game_id, 1, 0, 1);
+
+        let cell = get!(world, (game_id, 1, 0, 1), (Cell));
+    //assert(cell.block_id == block_id, 'Wrong cell block_id');
     }
 }

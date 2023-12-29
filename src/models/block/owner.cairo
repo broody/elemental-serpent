@@ -25,14 +25,13 @@ impl ElementIntoFelt252 of Into<Element, felt252> {
 }
 
 #[derive(Model, Copy, Drop, Serde)]
-struct Head {
+struct Owner {
     #[key]
     game_id: u32,
     #[key]
-    block_id: u32,
-    position: Position,
-    owner_id: ContractAddress,
-    element: Element,
-    prev: u32,
-    total_links: u8
+    player_id: ContractAddress,
+    head_block: u32,
+    tail_block: u32,
+    total_links: u8,
+    element: Element
 }

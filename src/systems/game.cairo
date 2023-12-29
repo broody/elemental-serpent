@@ -27,8 +27,9 @@ mod game {
 
     use godai::models::config::Config;
     use godai::models::cell::Cell;
-    use godai::models::owner::Owner;
-    use godai::models::block::{head::{Head, Element}, link::Link, position::{Position, PositionTrait}};
+    use godai::models::block::{
+        owner::{Owner, Element}, link::Link, position::{Position, PositionTrait}
+    };
     use super::IGame;
 
     #[external(v0)]
@@ -106,7 +107,7 @@ mod game {
 
         let player_id = get_caller_address();
         let owner = get!(world, (game_id, player_id), Owner);
-        assert(owner.block_id == Zeroable::zero(), 'Player is already in a game');
+        assert(owner.total_links == Zeroable::zero(), 'Player is already in a game');
 
         let mut cell = get!(world, (game_id, x, y, z), Cell);
         assert(cell.block_id == Zeroable::zero(), 'Cannot spawn in occupied cell');
@@ -116,17 +117,9 @@ mod game {
         set!(
             world,
             (
-                Owner { game_id, player_id, block_id },
-                Head {
-                    game_id,
-                    block_id,
-                    owner_id: player_id,
-                    prev: 0,
-                    total_links: 0,
-                    element: Element::None,
-                    position: Position { x, y, z },
-                },
-                Cell { game_id, block_id, x, y, z}
+                Owner { game_id, player_id, head_block: block_id, tail_block: block_id, total_links: 1, element: Element::None, },
+                Link { game_id, block_id, position: Position { x, y, z }, prev: 0, next: 0 },
+                Cell { game_id, block_id, x, y, z }
             )
         );
 

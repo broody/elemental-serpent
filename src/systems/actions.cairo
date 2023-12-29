@@ -23,9 +23,8 @@ mod actions {
 
     use starknet::{ContractAddress, get_caller_address};
     use godai::models::config::{ConfigTrait, Config};
-    use godai::models::owner::Owner;
     use godai::models::cell::Cell;
-    use godai::models::block::{head::Head, link::Link, position::{Position, PositionTrait}};
+    use godai::models::block::{owner::Owner, link::Link, position::{Position, PositionTrait}};
     use super::IActions;
     use super::Direction;
 
@@ -38,14 +37,11 @@ mod actions {
         assert(target_cell.block_id == 0, 'Cell is not empty');
 
         let owner = get!(world, (game_id, player_id), (Owner));
-        let (mut head_position, mut head) = get!(
-            world, (game_id, owner.block_id), (Position, Head)
-        );
-    let mut head_cell = get!(world, (game_id, head_position.x, head_position.y, head_position.z), (Cell));
-    // assert(head_position.is_adjacent(x, y), 'Target is not adjacent to head');
+        let head_link = get!(world, (game_id, owner.head_block), (Link));
+        assert(head_link.position.is_adjacent(x, y, z), 'Target is not adjacent to head');
 
-    // get the tail and set its position to the head
-    // let tail_link = tail(ctx, game_id, head.prev);
+        // get the tail and set its position to the head
+        //let tail_link = tail(ctx, game_id, link);
     // let mut tail_position = get !(world, (game_id, tail_link.block_id), (Position));
     // let mut tail_tile = get !(world, (game_id, tail_position.x, tail_position.y), (Tile));
     // tail_position.x = head_position.x;
@@ -105,31 +101,29 @@ mod actions {
     //     set!(world, (head, head_position, tile, target_block, target_position));
     // }
 
-    fn is_headless(world: IWorldDispatcher, game_id: u32, mut link: Link) -> bool {
-        loop {
-            let (next_link, head) = get!(world, (game_id, link.next), (Link, Head));
+    // fn is_headless(world: IWorldDispatcher, game_id: u32, mut link: Link) -> bool {
+    //     loop {
+    //         let (next_link, head) = get!(world, (game_id, link.next), (Link, Head));
 
-            if head.total_links != 0 {
-                break false;
-            }
+    //         if head.total_links != 0 {
+    //             break false;
+    //         }
 
-            if next_link.next == 0 {
-                break true;
-            }
+    //         if next_link.next == 0 {
+    //             break true;
+    //         }
 
-            link = next_link;
-        }
-    }
+    //         link = next_link;
+    //     }
+    // }
 
     fn tail(world: IWorldDispatcher, game_id: u32, mut link: Link) -> Link {
         loop {
-            let prev_link = get!(world, (game_id, link.prev).into(), (Link));
-
-            if prev_link.prev == 0 {
+            if link.prev == 0 {
                 break link;
             }
 
-            link = prev_link;
+            link = get!(world, (game_id, link.prev).into(), (Link));
         }
     }
 }

@@ -14,9 +14,10 @@ mod setup {
     // Internal imports
 
     use godai::models::config::{config, Config};
-    use godai::models::owner::{owner, Owner};
     use godai::models::cell::{cell, Cell};
-    use godai::models::block::{head::{head, Head}, link::{link, Link}, position::{Position, PositionTrait}};
+    use godai::models::block::{
+        owner::{owner, Owner}, link::{link, Link}, position::{Position, PositionTrait}
+    };
     use godai::systems::game::{game, IGameDispatcher, IGameDispatcherTrait};
     use godai::systems::actions::{actions, IActionsDispatcher, IActionsDispatcherTrait};
 
@@ -34,9 +35,8 @@ mod setup {
         let mut models = array![
             config::TEST_CLASS_HASH,
             cell::TEST_CLASS_HASH,
-            head::TEST_CLASS_HASH,
-            link::TEST_CLASS_HASH,
             owner::TEST_CLASS_HASH,
+            link::TEST_CLASS_HASH,
         ];
         let world = spawn_test_world(models);
         let systems = SystemDispatchers {
@@ -84,7 +84,10 @@ mod setup {
         let block_id = world.uuid();
         set!(
             world,
-            (Link { game_id, block_id, next: 0, prev: 0, position: Position {x, y, z} }, Cell { game_id, block_id, x, y, z })
+            (
+                Link { game_id, block_id, next: 0, prev: 0, position: Position { x, y, z } },
+                Cell { game_id, block_id, x, y, z }
+            )
         );
 
         block_id

@@ -7,13 +7,16 @@ mod systems {
 
 mod models {
     mod config;
-    mod owner;
     mod cell;
     mod block {
-        mod head;
+        mod owner;
         mod link;
         mod position;
     }
+}
+
+mod utils {
+    mod math;
 }
 
 #[cfg(test)]
