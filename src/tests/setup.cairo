@@ -15,8 +15,9 @@ mod setup {
 
     use godai::models::config::{config, Config};
     use godai::models::cell::{cell, Cell};
-    use godai::models::block::{
-        owner::{owner, Owner}, link::{link, Link}, position::{Position, PositionTrait}
+    use godai::models::owner::{owner, Owner};
+    use godai::models::link::{
+        link, Link, Position, PositionTrait
     };
     use godai::systems::game::{game, IGameDispatcher, IGameDispatcherTrait};
     use godai::systems::actions::{actions, IActionsDispatcher, IActionsDispatcherTrait};
@@ -57,7 +58,7 @@ mod setup {
         let HEIGHT = 10_u32;
         let WIDTH = 10_u32;
         let DEPTH = 10_u32;
-        let MAX_BLOCKS = 10_u32;
+        let MAX_LINKS = 10_u32;
         let MAX_PLAYERS = 10_u8;
         let START_TIME = 0_u64;
         let MAX_TIME = 0_u64;
@@ -66,30 +67,30 @@ mod setup {
         let (world, systems) = spawn_world();
         let game_id = systems
             .game
-            .create(HEIGHT, WIDTH, DEPTH, MAX_BLOCKS, MAX_PLAYERS, START_TIME, MAX_TIME);
+            .create(HEIGHT, WIDTH, DEPTH, MAX_LINKS, MAX_PLAYERS, START_TIME, MAX_TIME);
 
         let config = get!(world, game_id, Config);
         assert(config.creator == PLAYER(), 'Creator is not caller');
         assert(config.width == WIDTH, 'Width is not 10');
         assert(config.height == HEIGHT, 'Height is not 10');
-        assert(config.max_blocks == MAX_BLOCKS, 'Max blocks is not 10');
+        assert(config.max_links == MAX_LINKS, 'Max blocks is not 10');
 
         (world, systems, game_id)
     }
 
-    fn spawn_empty_link(world: IWorldDispatcher, game_id: u32, x: u32, y: u32, z: u32) -> u32 {
-        let cell = get!(world, (game_id, x, y, z), Cell);
-        assert(cell.block_id == Zeroable::zero(), 'Cell is not empty');
+    fn spawn_link(world: IWorldDispatcher, game_id: u32, position: Position, next: u32) -> u32 {
+        let cell = get!(world, (game_id, position.x, position.y, position.z), Cell);
+        assert(cell.link_id == Zeroable::zero(), 'Cell is not empty');
 
-        let block_id = world.uuid();
+        let link_id = world.uuid();
         set!(
             world,
             (
-                Link { game_id, block_id, next: 0, prev: 0, position: Position { x, y, z } },
-                Cell { game_id, block_id, x, y, z }
+                Link { game_id, link_id, next, position },
+                Cell { game_id, link_id, x: position.x, y: position.y, z: position.z, player_id: PLAYER() }
             )
         );
 
-        block_id
+        link_id
     }
 }

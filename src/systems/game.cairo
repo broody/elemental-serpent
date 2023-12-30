@@ -7,7 +7,7 @@ trait IGame<TContractState> {
         height: u32,
         width: u32,
         depth: u32,
-        max_blocks: u32,
+        max_links: u32,
         max_players: u8,
         start_time: u64,
         max_time: u64,
@@ -27,9 +27,8 @@ mod game {
 
     use godai::models::config::Config;
     use godai::models::cell::Cell;
-    use godai::models::block::{
-        owner::{Owner, Element}, link::Link, position::{Position, PositionTrait}
-    };
+    use godai::models::owner::{Owner, Element};
+    use godai::models::link::{Link, Position, PositionTrait};
     use super::IGame;
 
     #[external(v0)]
@@ -38,7 +37,7 @@ mod game {
         height: u32,
         width: u32,
         depth: u32,
-        max_blocks: u32,
+        max_links: u32,
         max_players: u8,
         start_time: u64,
         max_time: u64,
@@ -56,7 +55,7 @@ mod game {
                 width,
                 depth,
                 num_blocks: 0,
-                max_blocks,
+                max_links,
                 num_players: 0,
                 max_players,
                 start_time,
@@ -74,18 +73,18 @@ mod game {
 
         //     let (x, y) = PositionTrait::rnd_coord(seed, width, height);
         //     let tile = get!(world, (game_id, x, y), Tile);
-        //     if tile.block_id != 0 {
+        //     if tile.link_id != 0 {
         //         continue;
         //     }
 
-        //     let block_id = world.uuid();
+        //     let link_id = world.uuid();
 
         //     set!(
         //         world,
         //         (
-        //             Position { game_id, block_id, x, y, },
-        //             Link { game_id, block_id, next: 0, prev: 0, },
-        //             Tile { game_id, x, y, block_id, }
+        //             Position { game_id, link_id, x, y, },
+        //             Link { game_id, link_id, next: 0, prev: 0, },
+        //             Tile { game_id, x, y, link_id, }
         //         )
         //     );
 
@@ -110,22 +109,26 @@ mod game {
         assert(owner.total_links == Zeroable::zero(), 'Player is already in a game');
 
         let mut cell = get!(world, (game_id, x, y, z), Cell);
-        assert(cell.block_id == Zeroable::zero(), 'Cannot spawn in occupied cell');
+        assert(cell.player_id == Zeroable::zero(), 'Cannot spawn in occupied cell');
 
-        let block_id = world.uuid();
+        let link_id = world.uuid();
+        config.num_players += 1;
 
         set!(
             world,
             (
-                Owner { game_id, player_id, head_block: block_id, tail_block: block_id, total_links: 1, element: Element::None, },
-                Link { game_id, block_id, position: Position { x, y, z }, prev: 0, next: 0 },
-                Cell { game_id, block_id, x, y, z }
+                Owner {
+                    game_id,
+                    player_id,
+                    head_link: link_id,
+                    tail_link: link_id,
+                    total_links: 1,
+                    element: Element::None,
+                },
+                Link { game_id, link_id, position: Position { x, y, z }, next: 0 },
+                Cell { game_id, link_id, player_id, x, y, z },
+                config
             )
         );
-
-        config.num_players += 1;
-
-        // update config 
-        set!(world, (config));
     }
 }

@@ -7,7 +7,8 @@ mod create {
 
     use godai::models::config::{config, Config};
     use godai::models::cell::Cell;
-    use godai::models::block::{owner::Owner, link::Link, position::{Position, PositionTrait}};
+    use godai::models::owner::Owner;
+    use godai::models::link::{Link, Position, PositionTrait};
 
     use godai::systems::game::{IGameDispatcher, IGameDispatcherTrait};
     use godai::tests::setup::setup::{create_game, SystemDispatchers, PLAYER};
@@ -25,13 +26,13 @@ mod create {
         let owner = get!(world, (game_id, PLAYER()), Owner);
         assert(owner.player_id == PLAYER(), 'Player id is not caller');
 
-        let link = get!(world, (game_id, owner.head_block), Link);
+        let link = get!(world, (game_id, owner.head_link), Link);
         assert(link.position.x == JOIN_X, 'Link X is not 1');
         assert(link.position.y == JOIN_Y, 'Link Y is not 2');
         assert(link.position.z == JOIN_Z, 'Link Z is not 3');
 
         let cell = get!(world, (game_id, JOIN_X, JOIN_Y, JOIN_Z), Cell);
-        assert(cell.block_id == owner.head_block, 'cell block id is not block id');
+        assert(cell.link_id == owner.head_link, 'cell block id is not block id');
         assert(cell.x == JOIN_X, 'Cell X is not 1');
         assert(cell.y == JOIN_Y, 'Cell Y is not 2');
         assert(cell.z == JOIN_Z, 'Cell Z is not 3');

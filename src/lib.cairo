@@ -7,12 +7,9 @@ mod systems {
 
 mod models {
     mod config;
+    mod owner;
     mod cell;
-    mod block {
-        mod owner;
-        mod link;
-        mod position;
-    }
+    mod link;
 }
 
 mod utils {

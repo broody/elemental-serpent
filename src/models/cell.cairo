@@ -1,3 +1,5 @@
+use starknet::ContractAddress;
+
 #[derive(Model, Copy, Drop, Serde)]
 struct Cell {
     #[key]
@@ -8,5 +10,6 @@ struct Cell {
     y: u32,
     #[key]
     z: u32,
-    block_id: u32,
+    link_id: u32,
+    player_id: ContractAddress,
 }

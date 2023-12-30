@@ -11,7 +11,7 @@ struct Config {
     width: u32,
     depth: u32,
     num_blocks: u32,
-    max_blocks: u32,
+    max_links: u32,
     num_players: u8,
     max_players: u8,
     start_time: u64,

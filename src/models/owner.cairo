@@ -1,5 +1,4 @@
 use starknet::ContractAddress;
-use godai::models::block::position::{Position};
 
 #[derive(Serde, Copy, Drop, Introspect)]
 enum Element {
@@ -30,8 +29,8 @@ struct Owner {
     game_id: u32,
     #[key]
     player_id: ContractAddress,
-    head_block: u32,
-    tail_block: u32,
+    head_link: u32,
+    tail_link: u32,
     total_links: u8,
     element: Element
 }
