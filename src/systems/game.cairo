@@ -27,8 +27,8 @@ mod game {
 
     use godai::models::config::Config;
     use godai::models::cell::Cell;
-    use godai::models::owner::{Owner, Element};
-    use godai::models::link::{Link, Position, PositionTrait};
+    use godai::models::owner::Owner;
+    use godai::models::link::{Link, Element, Position, PositionTrait};
     use super::IGame;
 
     #[external(v0)]
@@ -118,14 +118,15 @@ mod game {
             world,
             (
                 Owner {
-                    game_id,
-                    player_id,
-                    head_link: link_id,
-                    tail_link: link_id,
-                    total_links: 1,
-                    element: Element::None,
+                    game_id, player_id, head_link: link_id, tail_link: link_id, total_links: 1
                 },
-                Link { game_id, link_id, position: Position { x, y, z }, next: 0 },
+                Link {
+                    game_id,
+                    link_id,
+                    element: Element::None,
+                    position: Position { x, y, z },
+                    next: 0
+                },
                 Cell { game_id, link_id, player_id, x, y, z },
                 config
             )

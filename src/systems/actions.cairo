@@ -1,17 +1,9 @@
 use dojo::world::IWorldDispatcher;
 
-#[derive(Serde, Copy, Drop)]
-enum Direction {
-    Up: (),
-    Down: (),
-    Left: (),
-    Right: (),
-}
-
 #[starknet::interface]
 trait IActions<TContractState> {
     fn move(self: @TContractState, game_id: u32, x: u32, y: u32, z: u32);
-//fn consume(self: @TContractState, game_id: u32, x: u32, y: u32, z: u32);
+    fn consume(self: @TContractState, game_id: u32, x: u32, y: u32, z: u32);
 }
 
 #[dojo::contract]
@@ -28,15 +20,14 @@ mod actions {
     use godai::models::owner::Owner;
     use godai::models::link::{Link, Position, PositionTrait};
     use super::IActions;
-    use super::Direction;
 
     #[external(v0)]
     fn move(self: @ContractState, game_id: u32, x: u32, y: u32, z: u32) {
         let world = self.world_dispatcher.read();
         let player_id = get_caller_address();
 
-//     let config = get!(world, game_id, (Config));
-//     config.check();
+        //  let config = get!(world, game_id, (Config));
+        //  config.check();
 
         let mut target_cell = get!(world, (game_id, x, y, z), (Cell));
         assert(target_cell.player_id == Zeroable::zero(), 'Cell is not empty');
@@ -53,7 +44,8 @@ mod actions {
 
         // update cells
         target_cell.link_id = tail_link.link_id;
-        tail_cell.link_id = 0;
+        tail_cell.link_id = Zeroable::zero();
+        tail_cell.player_id = Zeroable::zero();
 
         // update new head position
         tail_link.position.x = x;
@@ -76,57 +68,53 @@ mod actions {
 
         set!(world, (owner, head_link, tail_link, target_cell, tail_cell));
     }
-    
-// #[external(v0)]
-// fn consume(self: @ContractState, game_id: u32, x: u32, y: u32, z: u32) {
-//     let world = self.world_dispatcher.read();
-//     let player_id = get_caller_address();
 
-//     let config = get!(world, game_id, (Config));
-//     config.check();
+    #[external(v0)]
+    fn consume(self: @ContractState, game_id: u32, x: u32, y: u32, z: u32) {
+        let world = self.world_dispatcher.read();
+        let player_id = get_caller_address();
 
-    // let mut owner = get!(world, (game_id, player_id), (Owner));
-    // let mut head_link = get!(world, (game_id, owner.head_link), (Link));
-    // assert(head_link.position.is_adjacent(x, y, z), 'Target is not adjacent to head');
+        // let config = get!(world, game_id, (Config));
+        // config.check();
 
+        let mut owner = get!(world, (game_id, player_id), (Owner));
+        let mut head_link = get!(world, (game_id, owner.head_link), (Link));
+        assert(head_link.position.is_adjacent(x, y, z), 'Target is not adjacent to head');
 
+        // can only consume free links
+        let mut target_cell = get!(world, (game_id, x, y, z), (Cell));
+        assert(target_cell.player_id == Zeroable::zero(), 'Cell is occupied');
+        assert(target_cell.link_id != Zeroable::zero(), 'Cell is not linked');
 
-//     let owner = get!(world, (game_id, player_id), (Owner));
-//     let (mut head_position, mut head) = get!(
-//         world, (game_id, owner.link_id), (Position, Head)
-//     );
-//     assert(head_position.is_adjacent(target_x, target_y), 'Target is not adjacent to head');
+        let mut target_link = get!(world, (game_id, target_cell.link_id), (Link));
+        assert(is_headless(world, game_id, target_link), 'Target is not headless');
 
-//     // can only consume headless nodes
-//     let (mut target_block, mut target_position) = get!(
-//         world, (game_id, tile.link_id), (Block, Position)
-//     );
-//     if !is_headless(world, game_id, target_block) {
-//         return;
-//     }
+        target_link.next = Zeroable::zero();
+        head_link.next = target_link.link_id;
+        target_cell.player_id = player_id;
 
-//     target_block.next = head.link_id;
-//     target_block.prev = head.prev;
+        owner.head_link = target_link.link_id;
+        owner.total_links += 1;
 
-//     head.prev = target_block.link_id;
-//     head.total_blocks += 1;
+        set!(world, (owner, head_link, target_link, target_cell));
+    }
 
-//     tile.link_id = head.link_id;
+    fn is_headless(world: IWorldDispatcher, game_id: u32, mut link: Link) -> bool {
+        loop {
+            if link.next == 0 {
+                let cell = get!(
+                    world, (game_id, link.position.x, link.position.y, link.position.z), (Cell)
+                );
+                let owner = get!(world, (game_id, cell.player_id), (Owner));
 
-//     // swap target_position and head_position
-//     target_position.x = head_position.x;
-//     target_position.y = head_position.y;
-//     head_position.x = tile.x;
-//     head_position.y = tile.y;
+                if cell.link_id == owner.head_link {
+                    break false;
+                }
 
-//     set!(world, (head, head_position, tile, target_block, target_position));
-//}
+                break true;
+            }
 
-    // fn is_headless(world: IWorldDispatcher, game_id: u32, mut link: Link) -> bool {
-    //     loop {
-    //         if link.next == 0 {
-                
-    //         }
-    //     }
-    // }
+            link = get!(world, (game_id, link.next), (Link));
+        }
+    }
 }

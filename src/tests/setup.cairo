@@ -16,9 +16,7 @@ mod setup {
     use godai::models::config::{config, Config};
     use godai::models::cell::{cell, Cell};
     use godai::models::owner::{owner, Owner};
-    use godai::models::link::{
-        link, Link, Position, PositionTrait
-    };
+    use godai::models::link::{link, Link, Element, Position, PositionTrait};
     use godai::systems::game::{game, IGameDispatcher, IGameDispatcherTrait};
     use godai::systems::actions::{actions, IActionsDispatcher, IActionsDispatcherTrait};
 
@@ -78,7 +76,14 @@ mod setup {
         (world, systems, game_id)
     }
 
-    fn spawn_link(world: IWorldDispatcher, game_id: u32, position: Position, next: u32) -> u32 {
+    fn spawn_link(
+        world: IWorldDispatcher,
+        game_id: u32,
+        element: Element,
+        position: Position,
+        player_id: ContractAddress,
+        next: u32
+    ) -> u32 {
         let cell = get!(world, (game_id, position.x, position.y, position.z), Cell);
         assert(cell.link_id == Zeroable::zero(), 'Cell is not empty');
 
@@ -86,8 +91,8 @@ mod setup {
         set!(
             world,
             (
-                Link { game_id, link_id, next, position },
-                Cell { game_id, link_id, x: position.x, y: position.y, z: position.z, player_id: PLAYER() }
+                Link { game_id, link_id, next, element, position },
+                Cell { game_id, link_id, x: position.x, y: position.y, z: position.z, player_id }
             )
         );
 

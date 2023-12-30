@@ -10,8 +10,32 @@ struct Link {
     game_id: u32,
     #[key]
     link_id: u32,
+    element: Element,
     position: Position,
     next: u32
+}
+
+#[derive(Serde, Copy, Drop, Introspect)]
+enum Element {
+    None: (),
+    Void: (),
+    Earth: (),
+    Water: (),
+    Fire: (),
+    Wind: (),
+}
+
+impl ElementIntoFelt252 of Into<Element, felt252> {
+    fn into(self: Element) -> felt252 {
+        match self {
+            Element::None => 0,
+            Element::Void => 1,
+            Element::Earth => 2,
+            Element::Water => 3,
+            Element::Fire => 4,
+            Element::Wind => 5,
+        }
+    }
 }
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]

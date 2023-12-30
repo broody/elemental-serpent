@@ -21,4 +21,5 @@ mod tests {
     mod setup;
     mod join;
     mod move;
+    mod consume;
 }

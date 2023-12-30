@@ -8,7 +8,7 @@ mod move {
     use godai::models::config::{config, Config};
     use godai::models::cell::Cell;
     use godai::models::owner::Owner;
-    use godai::models::link::{Link, Position, PositionTrait};
+    use godai::models::link::{Link, Element, Position, PositionTrait};
 
     use godai::systems::game::{IGameDispatcher, IGameDispatcherTrait};
     use godai::systems::actions::{IActionsDispatcher, IActionsDispatcherTrait};
@@ -40,7 +40,7 @@ mod move {
 
         let mut owner = get!(world, (game_id, PLAYER()), (Owner));
         let tail_link = spawn_link(
-            world, game_id, Position { x: 2, y: 1, z: 0 }, owner.head_link
+            world, game_id, Element::None, Position { x: 2, y: 1, z: 0 }, PLAYER(), owner.head_link
         );
         owner.total_links += 1;
         owner.tail_link = tail_link;
